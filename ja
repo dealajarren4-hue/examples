@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Birthday Surprise for Eleja Jane!</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+        
+        /* Global Animation Setup */
+        .scene-container {
+            transition: opacity 1s ease-in-out;
+            pointer-events: none; /* Disable interaction unless visible */
+            opacity: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #fce7f3; /* Light Pink Background */
+        }
+        .scene-container.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- CANDLE SCENE STYLES --- */
+        .candle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Candle Body */
+        .candle {
+            width: 80px;
+            height: 200px;
+            background: linear-gradient(to top, #ffcc00, #ff6600);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Wick */
+        .wick {
+            width: 5px;
+            height: 20px;
+            background: #333;
+            position: absolute;
+            top: -20px;
+            z-index: 10;
+        }
+
+        /* Flame */
+        .flame {
+            width: 40px;
+            height: 50px;
+            background: radial-gradient(circle at 50% 100%, #ffeb3b, #ff9800, transparent);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute;
+            top: -70px;
+            filter: drop-shadow(0 0 10px #ff6);
+            transform-origin: bottom;
+            animation: flicker 0.1s infinite alternate;
+            transition: all 0.5s ease-out;
+            z-index: 20;
+        }
+        
+        /* Flame Flicker Animation */
+        @keyframes flicker {
+            0% { transform: scaleY(1) translateY(0); filter: drop-shadow(0 0 8px #ff6); }
+            50% { transform: scaleY(0.95) translateY(2px); filter: drop-shadow(0 0 12px #ff6); }
+            100% { transform: scaleY(1.05) translateY(-1px); filter: drop-shadow(0 0 10px #ff6); }
+        }
+
+        /* Extinguished state */
+        .flame.off {
+            opacity: 0;
+            transform: scale(0.1) translateY(-50px);
+        }
+
+        /* --- GIFT SCENE STYLES --- */
+        .gift-wrapper {
+            position: relative;
+            width: 250px;
+            height: 250px;
+        }
+        .gift-box, .gift-lid {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            background-color: #d63384; /* Deep Pink */
+            border-radius: 10px;
+            transition: transform 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        /* Gift Base */
+        .gift-box {
+            top: 50%;
+            height: 50%;
+            background-color: #e560a6; /* Lighter Pink */
+        }
+
+        /* Gift Lid */
+        .gift-lid {
+            top: 0;
+            background-color: #d63384;
+        }
+
+        /* Gift Ribbon */
+        .ribbon-v, .ribbon-h {
+            position: absolute;
+            background-color: #ffeb3b; /* Yellow/Gold */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .ribbon-v { width: 40px; height: 100%; left: calc(50% - 20px); }
+        .ribbon-h { width: 100%; height: 40px; top: calc(50% - 20px); }
+
+        /* Opening Animation State */
+        .gift-wrapper.open .gift-lid {
+            transform: translateY(-150px) rotate(10deg);
+            opacity: 0.8;
+        }
+        .gift-wrapper.open .ribbon-h {
+            opacity: 0; /* Hide horizontal ribbon quickly */
+        }
+        .gift-wrapper.open .ribbon-v {
+            transform: scaleY(1.2); /* Stretch vertical ribbon slightly */
+        }
+        
+        /* Inner Present */
+        .inner-present {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 80%;
+            height: 40%;
+            background-color: #8c7ae6; /* Purple placeholder */
+            border-radius: 5px;
+            transition: transform 1s ease-out 0.5s; /* Delay appearance until lid is off */
+        }
+        .gift-wrapper.open .inner-present {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* --- CARD SCENE (Final Greeting) STYLES --- */
+        .celebrant-name {
+            font-family: 'Pacifico', cursive; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        @keyframes pulse-pop {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
+            50% { transform: scale(1.01); box-shadow: 0 15px 30px rgba(255, 165, 0, 0.5); }
+        }
+        .animated-card {
+            background: linear-gradient(135deg, #FF7F50, #FFD700); /* Coral and Gold theme */
+            animation: pulse-pop 4s infinite ease-in-out;
+            position: relative;
+            overflow: hidden;
+            border-radius: 3rem;
+            border-width: 8px;
+            border-color: #facc15;
+            transition: all 0.5s;
+        }
+        .animated-card:hover {
+            transform: scale(1.03);
+        }
+
+        /* FIX: Ensure content is scrollable and card takes up more space */
+        #CardScene .animated-card {
+            height: 90vh; /* Make card take up most of the screen height */
+            max-width: 450px; /* Increased max width for better readability */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #CardScene .message-content {
+            flex-grow: 1; /* Allows the message area to fill space */
+            overflow-y: auto; /* IMPORTANT: Enables scrolling for long messages */
+            padding-right: 1rem; /* Space for scrollbar */
+        }
+
+    </style>
+</head>
+<body class="min-h-screen relative overflow-hidden font-sans">
+
+    <!-- 1. CANDLE SCENE -->
+    <div id="CandleScene" class="scene-container active">
+        <div class="candle-container">
+            <h1 class="text-3xl font-bold text-gray-700 mb-10">Make a wish, Eleja Jane!</h1>
+            
+            <div class="relative w-20 h-[220px]">
+                <div id="Flame" class="flame"></div>
+                <div class="wick mx-auto"></div>
+                <div class="candle mx-auto"></div>
+            </div>
+
+            <button id="BlowButton" onclick="blowCandle()" 
+                    class="mt-12 px-8 py-4 bg-purple-600 text-white font-bold rounded-full shadow-lg hover:bg-purple-700 transition duration-300 text-xl animate-bounce">
+                Click to Blow Out!
+            </button>
+            <p id="CandleMessage" class="mt-4 text-gray-500 font-medium"></p>
+        </div>
+    </div>
+
+    <!-- 2. GIFT UNBOXING SCENE -->
+    <div id="GiftScene" class="scene-container">
+        <div class="flex flex-col items-center">
+            <h1 id="GiftTitle" class="text-3xl font-bold text-gray-700 mb-10 opacity-0 transition-opacity duration-500">A new surprise awaits...</h1>
+            
+            <div id="GiftWrapper" class="gift-wrapper cursor-pointer" onclick="openGift()">
+                <!-- Ribbon (Vertical) -->
+                <div class="ribbon-v"></div>
+                <!-- Ribbon (Horizontal) -->
+                <div class="ribbon-h"></div>
+                <!-- Gift Lid -->
+                <div class="gift-lid"></div>
+                <!-- Gift Base -->
+                <div class="gift-box"></div>
+                <!-- Inner Present (Hidden) -->
+                <div class="inner-present text-white flex items-center justify-center text-2xl font-bold">
+                    ❤️
+                </div>
+            </div>
+            
+            <button id="GiftButton" onclick="openGift()" 
+                    class="mt-12 px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition duration-300 text-xl">
+                Open Your Gift!
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. FINAL GREETING CARD SCENE (UPDATED CONTENT) -->
+    <div id="CardScene" class="scene-container">
+         <div class="animated-card w-full max-w-sm sm:max-w-md mx-auto p-8 text-center text-white shadow-2xl">
+            
+            <p class="text-3xl mb-4">
+                💌💌💌💌💌💌💌💌
+            </p>
+
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight text-yellow-200">
+                Happy Birthday, My Love!
+            </h1>
+            
+            <!-- Message Content Container (with scrolling fix) -->
+            <div class="message-content text-lg md:text-xl font-light mb-6 text-left space-y-4 pt-4 border-t-2 border-yellow-300/50">
+                <p>Hi, my love, I hope you enjoy the happiest day of your life. How could it be na nakilala kita diba? Grabi talaga yung tadhana hahahahaha, because it gave me someone who is super cute, beautiful, smart, caring, and most of all, maldita minsan pero napakaunderatanding.</p>
+                
+                <p>I just want to say thank you for coming into my life. I wish that you achieve all your dreams in life, and that our relationship goes strong na kahit hindi pa tayo eh sana ending neto ay altar na love. </p>
+
+                <p>I know we are currently very far from each other, but I will still support you kung saan ka masaya. That is all, my love. MBTC!!!!</p>
+            </div>
+
+
+            <!-- Signature -->
+            <div class="text-center pt-4 mt-6 border-t-2 border-yellow-300/50 flex-shrink-0">
+                <p class="text-lg font-semibold mb-1">I LOVE YOU SO MUCH,</p>
+                <p class="celebrant-name text-3xl font-bold text-yellow-200 leading-none">BINIBINING ELEJAH JANE CERBAS!!!!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scenes = {
+            candle: document.getElementById('CandleScene'),
+            gift: document.getElementById('GiftScene'),
+            card: document.getElementById('CardScene')
+        };
+        const flame = document.getElementById('Flame');
+        const blowButton = document.getElementById('BlowButton');
+        const candleMessage = document.getElementById('CandleMessage');
+        const giftWrapper = document.getElementById('GiftWrapper');
+        const giftTitle = document.getElementById('GiftTitle');
+        const giftButton = document.getElementById('GiftButton');
+
+        function switchScene(nextSceneId) {
+            Object.values(scenes).forEach(scene => {
+                scene.classList.remove('active');
+            });
+            scenes[nextSceneId].classList.add('active');
+        }
+
+        // --- 1. CANDLE BLOWING LOGIC ---
+        function blowCandle() {
+            // Disable button to prevent re-click
+            blowButton.disabled = true;
+            blowButton.classList.remove('animate-bounce');
+            blowButton.textContent = 'Wish granted!'; 
+            
+            // Extinguish flame animation
+            flame.classList.add('off');
+            candleMessage.textContent = '✨ Poof! Make a wish...'; 
+
+            // Transition to Gift Scene after a short delay
+            setTimeout(() => {
+                switchScene('gift');
+                // Make the gift scene elements visible for interaction
+                giftTitle.classList.add('opacity-100');
+            }, 1500);
+        }
+
+        // --- 2. GIFT UNBOXING LOGIC ---
+        function openGift() {
+            // Disable button
+            giftButton.disabled = true;
+            giftButton.textContent = 'Unboxing...'; 
+            
+            // Start the gift opening animation
+            giftWrapper.classList.add('open');
+            giftTitle.textContent = 'A special message inside!'; 
+
+            // Transition to Final Card Scene after the animation finishes
+            setTimeout(() => {
+                switchScene('card');
+            }, 2500);
+        }
+
+        // Initialize: Ensure only the Candle scene is visible on load
+        window.onload = () => {
+             // Hide all except candle initially
+            Object.values(scenes).forEach(scene => {
+                scene.classList.remove('active');
+            });
+            scenes.candle.classList.add('active');
+        };
+
+    </script>
+</body>
+</html>
